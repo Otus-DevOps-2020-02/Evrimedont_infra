@@ -1,2 +1,11 @@
 # Evrimedont_infra
-Evrimedont Infra repository
+
+Евгений Баранов OTUS-DevOps-2020-02
+
+- [Домашнее задание №2: ChatOps](#Домашнее-задание-№2-ChatOps)
+
+## Домашнее задание №2 ChatOps
+- добавлен шаблон для pull request-а PULL_REQUEST_TEMPLATE.md
+- добавлена проверка на завершающий перенос строки и отсутствие завершающих пробелов через утилиту  pre-commit
+- настроена интеграция между Slack и репозитарием на GitHub
+- настроена интеграция с Travis CI для проверки заданий
