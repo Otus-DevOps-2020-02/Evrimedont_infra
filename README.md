@@ -13,8 +13,8 @@
 
 ## 2. Домашнее задание №3
 ~~~
-bastion_IP: 35.217.26.71
-someinternalhost_IP: 10.166.0.3
+bastion_IP = 35.217.26.71
+someinternalhost_IP = 10.166.0.3
 ~~~
 ### 2.1. Знакомство с Google Cloud Platform
 - создана учётная запись в GCP
@@ -74,8 +74,19 @@ ssh-keygen -t rsa -f ~/.ssh/gcp_otus_appuser -C appuser -P ""
 
 ### 2.3. Подключение через VPN-сервер
 - по инструкции к уроку был создан Pritunl VPN-сервер для серверов GCP, выполнена конфигурация этого сервера
-- на локальной машине конфигурационый файл настроенго VPN сервера был загружен в клиент OpenVPN и проверено подключение к VPN серверу:
+- на локальной машине конфигурационный файл настроенного VPN сервера был загружен в клиент OpenVPN и проверено подключение к VPN серверу:
     ```bash
     evgeniy@ehome:~$ ssh -i ~/.ssh/gcp_otus_appuser appuser@10.166.0.3 hostname
     someinternalhost
     ```
+- на виртуальной машине bastion был установлен certbot:
+    ```bash
+    sudo apt-get update
+    sudo apt-get install software-properties-common
+    sudo add-apt-repository universe
+    sudo add-apt-repository ppa:certbot/certbot
+    sudo apt-get update
+    sudo apt-get install certbot
+    sudo certbot certonly --standalone
+    ```
+- в настройках веб панели Pritunl в разделе Setting поле **Lets Encrypt Domain** было настроено как **35.217.26.71.xip.io**. Веб интерфейс Pritunl теперь доступен по домену **https://35.217.26.71.xip.io/**  и имеет валидный сертификат от Let’s Encrypt.
