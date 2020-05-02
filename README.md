@@ -3,7 +3,7 @@
 Евгений Баранов OTUS-DevOps-2020-02
 
 - [1. Домашнее задание №2: ChatOps](#1.-Домашнее-задание-№2-ChatOps)
-- [2. Домашнее задание №3](#2.-Домашнее-задание-№3)
+- [2. Домашнее задание №3](#2.-Домашнее-задание-№3-CloudBastion)
 
 ## 1. Домашнее задание №2 ChatOps
 - добавлен шаблон для pull request-а PULL_REQUEST_TEMPLATE.md
@@ -11,7 +11,7 @@
 - настроена интеграция между Slack и репозиторием на GitHub
 - настроена интеграция с Travis CI для проверки заданий
 
-## 2. Домашнее задание №3
+## 2. Домашнее задание №3 CloudBastion
 ~~~
 bastion_IP = 35.217.26.71
 someinternalhost_IP = 10.166.0.3
@@ -79,7 +79,7 @@ ssh-keygen -t rsa -f ~/.ssh/gcp_otus_appuser -C appuser -P ""
     evgeniy@ehome:~$ ssh -i ~/.ssh/gcp_otus_appuser appuser@10.166.0.3 hostname
     someinternalhost
     ```
-- на виртуальной машине bastion был установлен certbot:
+- на виртуальной машине bastion был установлен Certbot:
     ```bash
     sudo apt-get update
     sudo apt-get install software-properties-common
