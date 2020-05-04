@@ -3,7 +3,8 @@
 Евгений Баранов OTUS-DevOps-2020-02
 
 - [1. Домашнее задание №2: ChatOps](#1.-Домашнее-задание-№2-ChatOps)
-- [2. Домашнее задание №3](#2.-Домашнее-задание-№3-CloudBastion)
+- [2. Домашнее задание №3: CloudBastion](#2.-Домашнее-задание-№3-CloudBastion)
+- [3. Домашнее задание №4: CloudTestApp](#2.-Домашнее-задание-№4-CloudTestApp)
 
 ## 1. Домашнее задание №2 ChatOps
 - добавлен шаблон для pull request-а PULL_REQUEST_TEMPLATE.md
@@ -90,3 +91,42 @@ ssh-keygen -t rsa -f ~/.ssh/gcp_otus_appuser -C appuser -P ""
     sudo certbot certonly --standalone
     ```
 - в настройках веб панели Pritunl в разделе Setting поле **Lets Encrypt Domain** было настроено как **35.217.26.71.xip.io**. Веб интерфейс Pritunl теперь доступен по домену **https://35.217.26.71.xip.io/**  и имеет валидный сертификат от Let’s Encrypt.
+
+## 3. Домашнее задание №4 CloudTestApp
+~~~
+testapp_IP = 35.228.134.129
+testapp_port = 9292
+~~~
+- на локальной машине был установлен Google Cloud SDK, проведена инициализация gcloud:
+    ```bash
+    evgeniy@ehome:~$ gcloud auth list
+       Credentialed Accounts
+    ACTIVE  ACCOUNT
+    *       evrimedont@gmail.com
+
+    To set the active account, run:
+        $ gcloud config set account `ACCOUNT`
+    ```
+- утилитой gcloud создан новый инстанс reddit-app:
+    ```bash
+    evgeniy@ehome:~$ gcloud compute instances create reddit-app \
+    --boot-disk-size=10GB \
+    --image-family ubuntu-1604-lts \
+    --image-project=ubuntu-os-cloud \
+    --machine-type=g1-small \
+    --tags puma-server \
+    --restart-on-failure
+    WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+    Created [https://www.googleapis.com/compute/v1/projects/infra-275915/zones/europe-north1-a/instances/reddit-app].
+    NAME        ZONE             MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP     STATUS
+    reddit-app  europe-north1-a  g1-small                   10.166.0.5   35.228.134.129  RUNNING
+    ```
+- на созданной виртуальной машине по инструкции были установлены ruby и mongodb, скопирован код тестового приложения и сделан его деплой;
+- через веб интерфейс GCP было добавлено правило в фаерволе default-puma-server на tcp порт 9292;
+- вышеиспользованные команды были сгруппированы в файлы sh:
+- через веб интерфейс GCP был удалён Firewall rule "default-puma-server" и после этого создан то же правило через gcloud:
+    ```bash
+    gcloud compute firewall-rules create default-puma-server \
+      --allow tcp:9292 \
+      --target-tags=puma-server
+    ```
