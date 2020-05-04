@@ -4,7 +4,7 @@
 
 - [1. Домашнее задание №2: ChatOps](#1.-Домашнее-задание-№2-ChatOps)
 - [2. Домашнее задание №3: CloudBastion](#2.-Домашнее-задание-№3-CloudBastion)
-- [3. Домашнее задание №4: CloudTestApp](#2.-Домашнее-задание-№4-CloudTestApp)
+- [3. Домашнее задание №4: CloudTestApp](#3.-Домашнее-задание-№4-CloudTestApp)
 
 ## 1. Домашнее задание №2 ChatOps
 - добавлен шаблон для pull request-а PULL_REQUEST_TEMPLATE.md
