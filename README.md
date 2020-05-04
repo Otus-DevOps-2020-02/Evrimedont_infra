@@ -123,7 +123,50 @@ testapp_port = 9292
     ```
 - на созданной виртуальной машине по инструкции были установлены ruby и mongodb, скопирован код тестового приложения и сделан его деплой;
 - через веб интерфейс GCP было добавлено правило в фаерволе default-puma-server на tcp порт 9292;
-- вышеиспользованные команды были сгруппированы в файлы sh:
+- вышеиспользованные команды были сгруппированы в bash файлы install_ruby.sh, install_mongodb.sh, deploy.sh. Файлам были даны права на исполнение командой chmod +x;
+- подготовлен скрипт startup_script.sh, который устанавливает ruby и bundler, mongodb, получвет, инициализрует и деплоем тестовое приложение.
+- изучен вопрос создания виртуальной машины через gcloud с созданным заранее startup_script.sh:
+    ```bash
+    $ gcloud compute instances delete reddit-app
+    ...
+    Deleted [https://www.googleapis.com/compute/v1/projects/infra-275915/zones/europe-north1-a/instances/reddit-app].
+    $ gcloud compute instances create reddit-app \
+      --boot-disk-size=10GB \
+      --image-family ubuntu-1604-lts \
+      --image-project=ubuntu-os-cloud \
+      --machine-type=g1-small \
+      --tags puma-server \
+      --restart-on-failure \
+      --metadata-from-file startup-script=./startup_script.sh
+    WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+    Created [https://www.googleapis.com/compute/v1/projects/infra-275915/zones/europe-north1-a/instances/reddit-app].
+    NAME        ZONE             MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP     STATUS
+    reddit-app  europe-north1-a  g1-small                   10.166.0.6   35.228.134.129  RUNNING
+    ```
+- сделана возможность подзагрузки startup скрипта при создании виртуальной машине методом **gcloud compute instances create** через параметр startup-script-url. Для этого предварительно скрипт был помещён в Google Storage.
+    ```bash
+    $ gsutil mb -l europe-north1 gs://evrimedont-otus
+    Creating gs://evrimedont-otus/...
+    $ gsutil cp startup_script.sh gs://evrimedont-otus/devops/cloud-testapp/startup_script.sh
+    Copying file://startup_script.sh [Content-Type=text/x-sh]...
+    / [1 files][  536.0 B/  536.0 B]                                                
+    Operation completed over 1 objects/536.0 B.
+    $ gcloud compute instances delete reddit-app
+    ...
+    Deleted [https://www.googleapis.com/compute/v1/projects/infra-275915/zones/europe-north1-a/instances/reddit-app].
+    $ gcloud compute instances create reddit-app \
+        --boot-disk-size=10GB \
+        --image-family ubuntu-1604-lts \
+        --image-project=ubuntu-os-cloud \
+        --machine-type=g1-small \
+        --tags puma-server \
+        --restart-on-failure \
+        --metadata startup-script-url=gs://evrimedont-otus/devops/cloud-testapp/startup_script.sh
+    WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+    Created [https://www.googleapis.com/compute/v1/projects/infra-275915/zones/europe-north1-a/instances/reddit-app].
+    NAME        ZONE             MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP     STATUS
+    reddit-app  europe-north1-a  g1-small                   10.166.0.6   35.228.134.129  RUNNING
+    ```
 - через веб интерфейс GCP был удалён Firewall rule "default-puma-server" и после этого создан то же правило через gcloud:
     ```bash
     gcloud compute firewall-rules create default-puma-server \
