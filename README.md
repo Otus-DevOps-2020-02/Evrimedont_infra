@@ -5,6 +5,7 @@
 - [1. Домашнее задание №2: ChatOps](#1.-Домашнее-задание-№2-ChatOps)
 - [2. Домашнее задание №3: CloudBastion](#2.-Домашнее-задание-№3-CloudBastion)
 - [3. Домашнее задание №4: CloudTestApp](#3.-Домашнее-задание-№4-CloudTestApp)
+- [4. Домашнее задание №5: PackerBase](#4.-Домашнее-задание-№5-PackerBase)
 
 ## 1. Домашнее задание №2 ChatOps
 - добавлен шаблон для pull request-а PULL_REQUEST_TEMPLATE.md
@@ -173,3 +174,63 @@ testapp_port = 9292
       --allow tcp:9292 \
       --target-tags=puma-server
     ```
+
+## 4. Домашнее задание №5 PackerBase
+
+- с официального сайта packer.io был скачен архив с бинарником packer. Файл packer был перемещён в ~/bin, данная директория была добавлена в переменную PATH.
+    ```bash
+    $ packer -v
+    1.5.6
+    ```
+- создан Application Default Credentials (ADC) для управления ресурсами GCP через Packer
+    ```bash
+    $ gcloud auth application-default login --no-launch-browser
+    ...
+    Credentials saved to file: [/home/evrimedont/.config/gcloud/application_default_credentials.json]
+    
+    These credentials will be used by any library that requests Application Default Credentials (ADC).
+    ```
+- скрипты установки ruby и mongodb немного откорректированы (добавлена команда **set -e** в начале скриптов, команда **apt** заменена на команду **apt-get**) и скопированы в директорию packer/scripts.
+- в директории packer создан шаблон Packer ubuntu16.json:
+    ```json
+    {
+      "builders": [
+        {
+          "type": "googlecompute",
+          "project_id": "infra-275915",
+          "image_name": "reddit-base-{{timestamp}}",
+          "image_family": "reddit-base",
+          "source_image_family": "ubuntu-1604-lts",
+          "zone": "europe-north1-a",
+          "ssh_username": "appuser",
+          "machine_type": "f1-micro"
+        }
+      ],
+      "provisioners": [
+        {
+          "type": "shell",
+          "script": "scripts/install_ruby.sh",
+          "execute_command": "sudo {{.Path}}"
+        },
+        {
+          "type": "shell",
+          "script": "scripts/install_mongodb.sh",
+          "execute_command": "sudo {{.Path}}"
+        }
+      ]
+    }
+    ```
+- получившийся шаблон был проверен командой **packer validate**:
+    ```bash
+    $ packer validate ubuntu16.json 
+    Template validated successfully.
+    ```
+- после успешной проверки была запущена сборка образа:
+    ```bash
+    $ packer build ubuntu16.json
+    ...
+    ==> Builds finished. The artifacts of successful builds are:
+    --> googlecompute: A disk image was created: reddit-base-1588718564
+    ```
+- через web интерфейс GCP Compute Engine был создан инстанс reddit-app-2 на базе полученного образа, через теги работы с сетью добавлен тег **puma-server**;
+- через ssh было произведено подключение к созданной VM и вручную выполнены команды скачивания и деплоя тестового приложения reddit, приложение доступно по адресу **http://35.228.202.64:9292/**;
