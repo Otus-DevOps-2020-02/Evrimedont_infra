@@ -234,3 +234,47 @@ testapp_port = 9292
     ```
 - через web интерфейс GCP Compute Engine был создан инстанс reddit-app-2 на базе полученного образа, через теги работы с сетью добавлен тег **puma-server**;
 - через ssh было произведено подключение к созданной VM и вручную выполнены команды скачивания и деплоя тестового приложения reddit, приложение доступно по адресу **http://35.228.202.64:9292/**;
+- был доработан файл шаблона **ubuntu16.json**. Был создан файл **variables.json** с настраиваемыми переменными шаблона, файл добавлен в .gitignore. В систему контроля версий был добавлен файл **variables.json.example**. Также была доработана секция **builders** packer шаблона:
+    ```json
+    {
+      "variables": {
+        "project_id": "",
+        "machine_type": "f1-micro",
+        "zone": "europe-north1-a",
+        "source_image_family": "",
+        "disk_size": "10",
+        "disk_type": "pd-standard",
+        "network": "default",
+        "ssh_username": "appuser"
+      },
+      "builders": [
+        {
+          "type": "googlecompute",
+          "project_id": "{{user `project_id`}}",
+          "machine_type": "{{user `machine_type`}}",
+          "zone": "{{user `zone`}}",
+          "image_name": "reddit-base-{{isotime \"20060102150405\"}}",
+          "image_family": "reddit-base",
+          "image_description": "Template image for test reddit application. It contains ruby and mongodb installations.",
+          "source_image_family": "{{user `source_image_family`}}",
+          "ssh_username": "{{user `ssh_username`}}",
+          "disk_size": "{{user `disk_size`}}",
+          "disk_type": "{{user `disk_type`}}",
+          "network": "{{user `network`}}",
+          "tags": "puma-server,test"
+        }
+      ],
+      "provisioners": [
+        {
+          "type": "shell",
+          "script": "scripts/install_ruby.sh",
+          "execute_command": "sudo {{.Path}}"
+        },
+        {
+          "type": "shell",
+          "script": "scripts/install_mongodb.sh",
+          "execute_command": "sudo {{.Path}}"
+        }
+      ]
+    }
+    ```
