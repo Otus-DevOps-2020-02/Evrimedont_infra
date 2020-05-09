@@ -3,7 +3,6 @@
     "project_id": "",
     "machine_type": "f1-micro",
     "zone": "europe-north1-a",
-    "source_image_family": "",
     "disk_size": "10",
     "disk_type": "pd-standard",
     "network": "default",
@@ -16,10 +15,10 @@
       "project_id": "{{user `project_id`}}",
       "machine_type": "{{user `machine_type`}}",
       "zone": "{{user `zone`}}",
-      "image_name": "reddit-base-{{isotime \"20060102150405\"}}",
-      "image_family": "reddit-base",
-      "image_description": "Template image for test reddit application. It contains ruby and mongodb installations.",
-      "source_image_family": "{{user `source_image_family`}}",
+      "image_name": "reddit-full-{{isotime \"20060102150405\"}}",
+      "image_family": "reddit-full",
+      "image_description": "Template image for test reddit application. It contains complete running application.",
+      "source_image_family": "reddit-base",
       "ssh_username": "{{user `ssh_username`}}",
       "disk_size": "{{user `disk_size`}}",
       "disk_type": "{{user `disk_type`}}",
@@ -32,13 +31,13 @@
   ],
   "provisioners": [
     {
-      "type": "shell",
-      "script": "scripts/install_ruby.sh",
-      "execute_command": "sudo {{.Path}}"
+      "type": "file",
+      "source": "files/puma.service",
+      "destination": "/tmp/puma.service"
     },
     {
       "type": "shell",
-      "script": "scripts/install_mongodb.sh",
+      "script": "scripts/deploy.sh",
       "execute_command": "sudo {{.Path}}"
     }
   ]

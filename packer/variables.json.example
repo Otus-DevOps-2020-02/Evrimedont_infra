@@ -1,8 +1,4 @@
 {
   "project_id": "PROJECT_ID",
-  "machine_type": "f1-micro",
-  "source_image_family": "ubuntu-1604-lts",
-  "disk_size": "10",
-  "disk_type": "pd-standard",
-  "ssh_username": "appuser"
+  "source_image_family": "ubuntu-1604-lts"
 }

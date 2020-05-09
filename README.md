@@ -6,6 +6,8 @@
 - [2. Домашнее задание №3: CloudBastion](#2.-Домашнее-задание-№3-CloudBastion)
 - [3. Домашнее задание №4: CloudTestApp](#3.-Домашнее-задание-№4-CloudTestApp)
 - [4. Домашнее задание №5: PackerBase](#4.-Домашнее-задание-№5-PackerBase)
+  - [4.1 Самостоятельная работа](#4.1.-Самостоятельная-работа)
+  - [4.2 Задание со *](#4.2.-Задание-со-*)
 
 ## 1. Домашнее задание №2 ChatOps
 - добавлен шаблон для pull request-а PULL_REQUEST_TEMPLATE.md
@@ -150,7 +152,7 @@ testapp_port = 9292
     Creating gs://evrimedont-otus/...
     $ gsutil cp startup_script.sh gs://evrimedont-otus/devops/cloud-testapp/startup_script.sh
     Copying file://startup_script.sh [Content-Type=text/x-sh]...
-    / [1 files][  536.0 B/  536.0 B]                                                
+    / [1 files][  536.0 B/  536.0 B]
     Operation completed over 1 objects/536.0 B.
     $ gcloud compute instances delete reddit-app
     ...
@@ -177,6 +179,8 @@ testapp_port = 9292
 
 ## 4. Домашнее задание №5 PackerBase
 
+### 4.1. Самостоятельная работа
+
 - с официального сайта packer.io был скачен архив с бинарником packer. Файл packer был перемещён в ~/bin, данная директория была добавлена в переменную PATH.
     ```bash
     $ packer -v
@@ -187,7 +191,7 @@ testapp_port = 9292
     $ gcloud auth application-default login --no-launch-browser
     ...
     Credentials saved to file: [/home/evrimedont/.config/gcloud/application_default_credentials.json]
-    
+
     These credentials will be used by any library that requests Application Default Credentials (ADC).
     ```
 - скрипты установки ruby и mongodb немного откорректированы (добавлена команда **set -e** в начале скриптов, команда **apt** заменена на команду **apt-get**) и скопированы в директорию packer/scripts.
@@ -222,7 +226,7 @@ testapp_port = 9292
     ```
 - получившийся шаблон был проверен командой **packer validate**:
     ```bash
-    $ packer validate ubuntu16.json 
+    $ packer validate ubuntu16.json
     Template validated successfully.
     ```
 - после успешной проверки была запущена сборка образа:
@@ -232,7 +236,7 @@ testapp_port = 9292
     ==> Builds finished. The artifacts of successful builds are:
     --> googlecompute: A disk image was created: reddit-base-1588718564
     ```
-- через web интерфейс GCP Compute Engine был создан инстанс reddit-app-2 на базе полученного образа, через теги работы с сетью добавлен тег **puma-server**;
+- через web интерфейс GCP Compute Engine был создан инстанс reddit-app (предварительно удалён предыдущий) на базе полученного образа, через теги работы с сетью добавлен тег **puma-server**;
 - через ssh было произведено подключение к созданной VM и вручную выполнены команды скачивания и деплоя тестового приложения reddit, приложение доступно по адресу **http://35.228.202.64:9292/**;
 - был доработан файл шаблона **ubuntu16.json**. Был создан файл **variables.json** с настраиваемыми переменными шаблона, файл добавлен в .gitignore. В систему контроля версий был добавлен файл **variables.json.example**. Также была доработана секция **builders** packer шаблона:
     ```json
@@ -278,3 +282,21 @@ testapp_port = 9292
       ]
     }
     ```
+- дальше снова был удалён инстанс reddit-app и через утилиту gcloud развёрнут снова командой:
+    ```bash
+    gcloud compute instances create reddit-app \
+      --zone=europe-north1-a \
+      --machine-type=g1-small \
+      --tags=puma-server \
+      --image=reddit-base-20200508223001 \
+      --image-project=infra-275915 \
+      --boot-disk-size=15GB \
+      --boot-disk-type=pd-standard
+    ```
+- в ручном режиме на полученной виртуальной машине был добавлен код проекта и запущен веб сервер puma. Приложение снова доступно по адресу **http://35.228.202.64:9292/**.
+
+### 4.2. Задание со *
+
+- был создан новый шаблон для packer **immutable.json**, который в качестве source_image_family берёт созданный ранее образ **reddit-base**;
+- был откорректирован файл деплоя scripts/deploy.sh, запуск веб сервера **puma** был переделан на использование systemd unit;
+- был сделан скрипт **create-reddit-vm.sh** для автоматического запуска packer build и вслед за ним создания виртуальной машины через gcloud;
