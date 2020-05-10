@@ -1,3 +1,11 @@
 /.idea/*
 
 /packer/variables.json
+
+*.tfstate
+*.tfstate.*.backup
+*.tfstate.backup
+*.tfvars
+.terraform/
+
+/terraform/gcp_service_account.json
