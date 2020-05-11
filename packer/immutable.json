@@ -1,0 +1,44 @@
+{
+  "variables": {
+    "project_id": "",
+    "machine_type": "f1-micro",
+    "zone": "europe-north1-a",
+    "disk_size": "10",
+    "disk_type": "pd-standard",
+    "network": "default",
+    "ssh_username": "appuser",
+    "tags": ""
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "{{user `project_id`}}",
+      "machine_type": "{{user `machine_type`}}",
+      "zone": "{{user `zone`}}",
+      "image_name": "reddit-full-{{isotime \"20060102150405\"}}",
+      "image_family": "reddit-full",
+      "image_description": "Template image for test reddit application. It contains complete running application.",
+      "source_image_family": "reddit-base",
+      "ssh_username": "{{user `ssh_username`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "disk_type": "{{user `disk_type`}}",
+      "network": "{{user `network`}}",
+      "tags": "{{user `tags`}}",
+      "labels": {
+        "environment": "test"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "files/puma.service",
+      "destination": "/tmp/puma.service"
+    },
+    {
+      "type": "shell",
+      "script": "scripts/deploy.sh",
+      "execute_command": "sudo {{.Path}}"
+    }
+  ]
+}
