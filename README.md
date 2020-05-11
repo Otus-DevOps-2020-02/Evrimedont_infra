@@ -10,6 +10,7 @@
   - [4.2 Задание со *](#4.2.-Задание-со-*)
 - [5. Домашнее задание №6: Terraform-1](#5.-Домашнее-задание-№6-Terraform-1)
   - [5.1 Самостоятельная работа](#5.1.-Самостоятельная-работа)
+  - [5.2 Задание со *](#5.2.-Задание-со-*)
 
 ## 1. Домашнее задание №2 ChatOps
 - добавлен шаблон для pull request-а PULL_REQUEST_TEMPLATE.md
@@ -310,7 +311,7 @@ testapp_port = 9292
 - были удалены ключи пользователя appuser в интерфейсе GCP Metadata \ Metadata \ SSH Keys
 - на локальную систему был установлен terraform по официальной документации;
 - была создана директория **terraform**, в ней файл **main.tf** с блоками terraform и provider. Также в файл .gitignore проекта добавлены служебные файлы terraform;
-- через веб интерфейс GCP был создан новый Service Accounts для работы с terraform и создан ключ для него;
+- через веб интерфейс GCP был создан новый Service Accounts для работы с terraform и создан ключ для него. Ключ был сохранён на локальной машине и прописан путь до него в переменную окружения GOOGLE_CLOUD_KEYFILE_JSON;
 - выполнена команда terraform init;
 - в файл **main.tf** был добавлен блок resource "google_compute_instance" "app";
 - были выполнены команды **terraform plan** и **terraform apply**;
@@ -319,7 +320,21 @@ testapp_port = 9292
 - в файл конфига **main.tf** был добавлен resource "google_compute_firewall" "firewall_puma" с описанием правила фаервола для приложения, а в ресурс "google_compute_instance" "app" добавлен тег **reddit-app**;
 - в файл конфига **main.tf** были добавлены provisioner-ы "file" и " "remote-exec", они клонируют приложение reddit, настраивают sysated unit для запуска службы puna.service;
 - были созданы файлы **variables.tf** и **terraform.tfvars** и параметризованы все необходимые переменные;
-- была выполнена команда **terraform destroy**, затем **terraform apply**. Результат работы приложения можно увидеть по адресу http://35.228.61.101:9292/.
+- была выполнена команда **terraform destroy**, затем **terraform apply**. Результат работы приложения можно увидеть по адресу http://35.228.103.163:9292/.
 - во input переменные был добавлен путь до приватного ключа и зона со значением по умолчанию **europe-north1-a**;
 - командой **terraform fmt** были отфорамтированы конфигурационные файлы Terraform;
 - был добавлен файл **terraform.tfvars.example** с тестовыми значениями для сохранения в систему контроля версий;
+
+### 5.2. Задание со *
+
+- используя ресурс **google_compute_project_metadata_item** в шаблон **main.tf** были добавлены два ssh ключа для пользователей appuser1 и appuser2 на уровне всего проекта:
+    ```hcl-terraform
+    resource "google_compute_project_metadata_item" "default" {
+      key   = "ssh-keys"
+      value = <<SSH_KEYS
+        appuser1:${file(var.public_key_path)}
+        appuser2:${file(var.public_key_path)}
+      SSH_KEYS
+    }
+    ```
+- в ходе эксперимента выяснилось, что при добавлении ssh ключей через web интерфейс GCP, а потом запуска команды **terraform apply** созданные через веб интерфейс ключи удаляются.

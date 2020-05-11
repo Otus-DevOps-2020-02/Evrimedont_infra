@@ -7,10 +7,16 @@ provider "google" {
   # Версия провайдера
   version = "~> 2.15"
 
-  credentials = file("gcp_service_account_key.json")
-
   project = var.project
   region  = var.region
+}
+
+resource "google_compute_project_metadata_item" "default" {
+  key   = "ssh-keys"
+  value = <<SSH_KEYS
+    appuser1:${file(var.public_key_path)}
+    appuser2:${file(var.public_key_path)}
+  SSH_KEYS
 }
 
 resource "google_compute_instance" "app" {
